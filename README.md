@@ -33,7 +33,6 @@ env = VisualHints(path, request_infos, batch_size, asynchronous, distance_of_puz
 
 The meaning of the input options are as follows:
 ```
-python -m textrl.generator.gym_textworld.scripts.tw-make twcc_<type>_level<level>_gamesize<numgames>_step<step>_seed3_<mode>
 - <path>                : Path to environment Textworld file.
 - <request_infos>       : Additional infos requested from the game.
 - <distance_of_puzzle>  : Distance of hint from the kitchen (final room).
