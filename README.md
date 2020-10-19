@@ -10,6 +10,10 @@ Repository for VisualHints: A Visual-Lingual Environment for Multimodal Reinforc
 }
 ```
 
+![overview](./assets/new_cover_pic.png)
+
+An overview of our VisualHints environment. The agent starts at the "driveway" where it only receives the textual observation. From this textual observation, the agent can issue the command "examine hint" to obtain the visual hint shown on the top-right. If the agent does not use the visual hint and simply tries to use textual observation, then it is likely to venture in a wrong path "driveway"->"street"->"supermarket" due to partial observability. Using both text and visual observation (after picking up the hint), the agent has a better context to reach the "kitchen" (goal room to make the meal). However, using both visual and textual information is a challenge and our environment design necessitates usage of both these information, that requires solving novel problem settings compared to existing works for multimodal RL.
+
 ## Dependencies installation
 It is recommended to use a Anaconda + virtual environment. We assume CUDA10 (found in `/usr/loca/cuda`) is installed.<br /> 
 Please change the command according to your CUDA version, which can be found at `https://pytorch.org/`.
