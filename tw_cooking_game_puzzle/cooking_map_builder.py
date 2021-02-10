@@ -18,26 +18,27 @@ def build_dict_rooms(infos):
     rooms_dict = dict()
     first_room = 'a'  # room from which the map will be build
 
-    for i in range(len(infos["facts"][0])):
-        if infos["facts"][0][i].name in ['east_of', 'north_of']:
+    facts = infos['facts'][0] if type(infos['facts'][0]) == list else infos['facts']
+    for i in range(len(facts)):
+        if facts[i].name in ['east_of', 'north_of']:
             if first_room == 'a':
-                first_room = infos["facts"][0][i].arguments[0].name
-            if infos["facts"][0][i].arguments[0].name not in rooms_dict:
-                rooms_dict[infos["facts"][0][i].arguments[0].name] = [None, None, None, None]
+                first_room = facts[i].arguments[0].name
+            if facts[i].arguments[0].name not in rooms_dict:
+                rooms_dict[facts[i].arguments[0].name] = [None, None, None, None]
 
-            if infos["facts"][0][i].arguments[1].name not in rooms_dict:
-                rooms_dict[infos["facts"][0][i].arguments[1].name] = [None, None, None, None]
+            if facts[i].arguments[1].name not in rooms_dict:
+                rooms_dict[facts[i].arguments[1].name] = [None, None, None, None]
 
-            if infos["facts"][0][i].name in 'east_of':
-                rooms_dict[infos["facts"][0][i].arguments[0].name][3] = infos["facts"][0][i].arguments[1].name
-                rooms_dict[infos["facts"][0][i].arguments[1].name][2] = infos["facts"][0][i].arguments[0].name
+            if facts[i].name in 'east_of':
+                rooms_dict[facts[i].arguments[0].name][3] = facts[i].arguments[1].name
+                rooms_dict[facts[i].arguments[1].name][2] = facts[i].arguments[0].name
 
             else:
-                rooms_dict[infos["facts"][0][i].arguments[0].name][1] = infos["facts"][0][i].arguments[1].name
-                rooms_dict[infos["facts"][0][i].arguments[1].name][0] = infos["facts"][0][i].arguments[0].name
+                rooms_dict[facts[i].arguments[0].name][1] = facts[i].arguments[1].name
+                rooms_dict[facts[i].arguments[1].name][0] = facts[i].arguments[0].name
 
-        elif infos["facts"][0][i].name == 'cooking_location':
-            ck_loc = infos["facts"][0][i].arguments[0].name
+        elif facts[i].name == 'cooking_location':
+            ck_loc = facts[i].arguments[0].name
 
     if first_room == 'a':
         first_room = ck_loc
@@ -70,39 +71,40 @@ def build_dict_game_goals(infos):
     dict_game_goals = dict()
     dict_game_goals['base'] = []
 
-    for i in range(len(infos["facts"][0])):
-        if infos["facts"][0][i].name in ['at', 'in', 'on', 'base', 'cooking_location']:
+    facts = infos['facts'][0] if type(infos['facts'][0]) == list else infos['facts']
+    for i in range(len(facts)):
+        if facts[i].name in ['at', 'in', 'on', 'base', 'cooking_location']:
 
-            if infos["facts"][0][i].name == 'at':
+            if facts[i].name == 'at':
 
-                if infos["facts"][0][i].name not in dict_game_goals:
-                    dict_game_goals[infos["facts"][0][i].name] = {infos["facts"][0][i].arguments[0].name:
-                                                                      infos["facts"][0][i].arguments[1].name}
+                if facts[i].name not in dict_game_goals:
+                    dict_game_goals[facts[i].name] = {facts[i].arguments[0].name:
+                                                                      facts[i].arguments[1].name}
                 else:
-                    dict1 = dict_game_goals[infos["facts"][0][i].name]
-                    dict2 = {infos["facts"][0][i].arguments[0].name: infos["facts"][0][i].arguments[1].name}
-                    dict_game_goals[infos["facts"][0][i].name] = merge(dict1, dict2)
+                    dict1 = dict_game_goals[facts[i].name]
+                    dict2 = {facts[i].arguments[0].name: facts[i].arguments[1].name}
+                    dict_game_goals[facts[i].name] = merge(dict1, dict2)
 
-            elif infos["facts"][0][i].name == 'in' or infos["facts"][0][i].name == 'on':
+            elif facts[i].name == 'in' or facts[i].name == 'on':
 
-                if infos["facts"][0][i].arguments[0].name in dict_game_goals['base']:
+                if facts[i].arguments[0].name in dict_game_goals['base']:
 
-                    if 'secondary_goals' not in dict_game_goals and 'I' != infos["facts"][0][i].arguments[1].name:
+                    if 'secondary_goals' not in dict_game_goals and 'I' != facts[i].arguments[1].name:
 
-                        dict_game_goals['secondary_goals'] = {infos["facts"][0][i].arguments[0].name:
+                        dict_game_goals['secondary_goals'] = {facts[i].arguments[0].name:
                                                                   dict_game_goals['at']
-                                                                  [infos["facts"][0][i].arguments[1].name]}
-                    elif 'secondary_goals' in dict_game_goals and 'I' != infos["facts"][0][i].arguments[1].name:
+                                                                  [facts[i].arguments[1].name]}
+                    elif 'secondary_goals' in dict_game_goals and 'I' != facts[i].arguments[1].name:
 
                         dict1 = dict_game_goals['secondary_goals']
-                        dict2 = {infos["facts"][0][i].arguments[0].name:
-                                     dict_game_goals['at'][infos["facts"][0][i].arguments[1].name]}
+                        dict2 = {facts[i].arguments[0].name:
+                                     dict_game_goals['at'][facts[i].arguments[1].name]}
                         dict_game_goals['secondary_goals'] = merge(dict1, dict2)
 
-            elif infos["facts"][0][i].name == 'base':
-                dict_game_goals[infos["facts"][0][i].name].append(infos["facts"][0][i].arguments[0].name)
+            elif facts[i].name == 'base':
+                dict_game_goals[facts[i].name].append(facts[i].arguments[0].name)
             else:
-                dict_game_goals[infos["facts"][0][i].name] = infos["facts"][0][i].arguments[0].name
+                dict_game_goals[facts[i].name] = facts[i].arguments[0].name
     return dict_game_goals
 
 
