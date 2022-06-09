@@ -3,10 +3,8 @@ Repository for VisualHints: A Visual-Lingual Environment for Multimodal Reinforc
 
 ```
 @inproceedings{carta-etal-2020-vizhints,
-    title = "VisualHints: A Visual-Lingual Environment for Multimodal Reinforcement Learning",
-    author = "Carta, Thomas and Chaudhury, Subhajit and Talamadupula, Kartik and Tatsubori, Michiaki",
-    booktitle = "arxiv",
-    year = "2020"
+    title = "VISUALHANDICAPS: Systematic Handicaps for Text-based Games",
+    author = "Subhajit Chaudhury, Keerthiram Murugesan, Thomas Carta, Kartik Talamadupula and Michiaki Tatsubori",
 }
 ```
 
