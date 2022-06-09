@@ -2,7 +2,7 @@
 Repository for VISUALHANDICAPS: Systematic Handicaps for Text-based Games. We provide `VisualHandicaps` environment with various options for customizing the details available in the mental maps to emulate various difficulty levels of the handicaps.
 
 
-![overview](./assets/intro.pdf)
+![overview](./assets/intro.png)
 
 We present VISUALHANDICAPS, a new environment for systematic analysis of text-based games (TBGs) to improve the performance of reinforcement learning
 (RL) agents by providing visual handicaps or hints related to the game instances. Taking inspiration from the biological learning process that leverages mental maps of the (game) world for robust planning, we seek to analyze the performance of RL agents on TBGs when such systematic mental maps of varying difficulties are provided as handicaps. Previous works designed handicaps that allow additional textual information to simply measure how effectively an RL agent can understand from sequential natural language information with varying amounts of details. In contrast, our VISUALHANDICAPS environment seeks to improve the generalization ability of the RL agents using varying details of maps along with textual information - a setting that is inspired by learning in animals akin to real-world RL. 
