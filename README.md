@@ -1,28 +1,23 @@
 # VisualHints
-Repository for VisualHints: A Visual-Lingual Environment for Multimodal Reinforcement Learning. We provide `VisualHints` environment with various options for customizing the type of visual hints to emulate various real-world scenarios.
+Repository for VISUALHANDICAPS: Systematic Handicaps for Text-based Games. We provide `VisualHandicaps` environment with various options for customizing the details available in the mental maps to emulate various difficulty levels of the handicaps.
 
-```
-@inproceedings{carta-etal-2020-vizhints,
-    title = "VISUALHANDICAPS: Systematic Handicaps for Text-based Games",
-    author = "Subhajit Chaudhury, Keerthiram Murugesan, Thomas Carta, Kartik Talamadupula and Michiaki Tatsubori",
-}
-```
 
-![overview](./assets/new_cover_pic.png)
+![overview](./assets/intro.pdf)
 
-An overview of our VisualHints environment. The agent starts at the "driveway" where it only receives the textual observation. From this textual observation, the agent can issue the command "examine hint" to obtain the visual hint shown on the top-right. If the agent does not use the visual hint and simply tries to use textual observation, then it is likely to venture in a wrong path "driveway"->"street"->"supermarket" due to partial observability. Using both text and visual observation (after picking up the hint), the agent has a better context to reach the "kitchen" (goal room to make the meal). However, using both visual and textual information is a challenge and our environment design necessitates usage of both these information, that requires solving novel problem settings compared to existing works for multimodal RL.
+We present VISUALHANDICAPS, a new environment for systematic analysis of text-based games (TBGs) to improve the performance of reinforcement learning
+(RL) agents by providing visual handicaps or hints related to the game instances. Taking inspiration from the biological learning process that leverages mental maps of the (game) world for robust planning, we seek to analyze the performance of RL agents on TBGs when such systematic mental maps of varying difficulties are provided as handicaps. Previous works designed handicaps that allow additional textual information to simply measure how effectively an RL agent can understand from sequential natural language information with varying amounts of details. In contrast, our VISUALHANDICAPS environment seeks to improve the generalization ability of the RL agents using varying details of maps along with textual information - a setting that is inspired by learning in animals akin to real-world RL. 
 
 ## Dependencies installation
 It is recommended to use a Anaconda + virtual environment. We assume CUDA10 (found in `/usr/loca/cuda`) is installed.<br /> 
 Please change the command according to your CUDA version, which can be found at `https://pytorch.org/`.
 ```bash
 pip install gym 
-pip install tqdm pillow
+pip install tqdm pillow matplotlib
 pip install textworld==1.3.2
 conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
 ```
 
-## Format for using the VisuaHints environment
+## Format for using the generic VisuaHints environment
 
 The following code snippet shows basic usage of the VisualHints environment.
 
@@ -47,62 +42,23 @@ The meaning of the input options are as follows:
 - <draw_player>         : Should the current position of the player be drawn.
 ```
 
-## How to generate games:
-**Mode 1**: The goal of the agent is to reach the kitchen room, where the agent has to prepare the meal and eat the meal to win the game.
-```
-env = VisualHints(path=path, request_infos=request_infos, batch_size=1, asynchronous=True, mask=False, 
-                  distance_of_puzzle=4, add_death_room=False, clue_first_room=True, max_number_inaccessible_rooms=2, 
-                  room_name=True, color_way=True, upgradable_color_way=True, name_type='literal', draw_passages=True, 
-                  draw_player=True, level_clue='easy', random_place=True, name='cooking_game')
-```
-![option1](./assets/option_1.png)
+## How to generate cooking games of different difficulties:
+Here, the goal of the agent is to reach the kitchen room, where the agent has to prepare the meal and eat the meal to win the game.
 
-**Mode 2**: Adding death room to VisualHints to emulate the role of safety in the real world. The modified goal of the agent is to reach the kitchen room while avoiding going to the death-room. The agent dies and the game is over if the agent visits the death-room.
-```
-env = VisualHints(path=path, request_infos=request_infos, batch_size=1, asynchronous=True, 
-                  mask=False, distance_of_puzzle=4, add_death_room=True, clue_first_room=True,
-                  max_number_inaccessible_rooms=2, room_name=True, color_way=True, upgradable_color_way=True,
-                  name_type='literal', draw_passages=True, draw_player=True, level_clue='easy', random_place=True, name='cooking_game')
-```
-![option2](./assets/option_2.png)
+- We use the TextWorld Cooking as base environments. Please download the games from https://aka.ms/ftwp and put the files in the `env_files` folder.
 
-**Mode 3**: Masked configuration of the game where only the pathway to the kitchen is highlighted and other details are masked. This will make it easier for the agent to reach the target which is the kitchen in this case. However, even the death room is masked and hence it is dangerous for the agent to deviate from the shown green pathway.
+- Next obtain the navigational games, and pass them as the input games to environment. 
 ```
-env = VisualHints(path=path, request_infos=request_infos, batch_size=1, asynchronous=True, 
-                  mask=False, distance_of_puzzle=4, add_death_room=True, clue_first_room=True,
-                  max_number_inaccessible_rooms=2, room_name=True, color_way=True, upgradable_color_way=True,
-                  name_type='literal', draw_passages=True, draw_player=True, level_clue='easy', random_place=False, name='cooking_game')
+root_dir = os.path.expanduser("~/Data/text_world_compete/ftwp/games/")
+allowed_actions = __ALL_ACTIONS
+train_files, navigation_train_files, non_navigation_train_files = get_nav_non_nav_files(root_dir=root_dir,allowed_actions=allowed_actions, 
+                                                                                        kind='train')
+games_go6, games_go9, games_go12 = split_navigation_games(navigation_train_files)
+env = CookingNavigationEnv(game_list, im_size=500, num_actions=5, stack_dim=None, time_penalty=False, hint_level=3)
 ```
-![option3](./assets/option_3.png)
+![option1](./assets/go9.png)
 
-
-**Mode 4**: Name of the room is masked and only the room importance is displayed. For the primary target~(kitchen) the room importance is kept at 1 and for secondary targets (like rooms where the ingredients need to be picked from) are shown with importance of 2. All other rooms are shown with importance of 0.
-```
-env = VisualHints(path=path, request_infos=request_infos, batch_size=1, asynchronous=True, 
-                  mask=False, distance_of_puzzle=4, add_death_room=True, clue_first_room=True,
-                  max_number_inaccessible_rooms=2, room_name=True, color_way=True, upgradable_color_way=True,
-                  name_type='room_importance', draw_passages=True, draw_player=True, level_clue='easy', random_place=False, name='cooking_game')
-```
-![option4](./assets/option_4.png)
-
-**Mode 5**: The pathways between each room are masked and the agent cannot have a notion of which direction is available for travel only from the visual hint. In such a case, the multi-modal agent has to rely on the textual observation to ascertain which direction has an open door and thus decide to take action accordingly.
-```
-env = VisualHints(path=path, request_infos=request_infos, batch_size=1, asynchronous=True, 
-                  mask=False, distance_of_puzzle=4, add_death_room=True, clue_first_room=True,
-                  max_number_inaccessible_rooms=2, room_name=True, color_way=True, upgradable_color_way=True,
-                  name_type='room_importance', draw_passages=False, draw_player=True, level_clue='easy', random_place=False, name='cooking_game')
-```
-![option5](./assets/option_5.png)
-
-**Mode 6**: Combines the previous two modes where the pathways between each room are masked in addition to the roomnames being replaced with room importance.
-```
-env = VisualHints(path=path, request_infos=request_infos, batch_size=1, asynchronous=True, 
-                  mask=False, distance_of_puzzle=4, add_death_room=True, clue_first_room=True,
-                  max_number_inaccessible_rooms=2, room_name=True, color_way=False, upgradable_color_way=True,
-                  name_type='literal', draw_passages=False, draw_player=True, level_clue='easy', random_place=False, name='cooking_game')
-```
-![option6](./assets/option_6.png)
 
 
 ## Demo
-Please see `visualHints_demo.ipynb` for a demonstration of a game along with VisualHints. We use the TextWorld Cooking as base environments. Please download the games from https://aka.ms/ftwp and put the files in the `env_files` folder.
+Please see `visualHints_demo.py` for a demonstration of a game along with VisualHandicaps. We use the TextWorld Cooking as base environments. Please download the games from https://aka.ms/ftwp and put the files in the `env_files` folder.
