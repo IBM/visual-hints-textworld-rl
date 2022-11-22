@@ -19,9 +19,9 @@ transform = transforms.Compose([transforms.ToTensor()])
 from tw_cooking_game_puzzle.cooking_map_builder import build_dict_rooms, build_dict_game_goals, picture_size, draw_map, pic_player_to_kitchen
 from textworld import EnvInfos
 
-class VisualHints:
+class VisualHintsWrapper:
 
-    def __init__(self, path: str, request_infos: EnvInfos, batch_size: int, asynchronous: bool,
+    def __init__(self, env, batch_size: int,
                  mask: bool, distance_of_puzzle: int, clue_first_room: bool, add_death_room: bool,
                  max_number_inaccessible_rooms: int, room_name=True, color_way=True, upgradable_color_way=True,
                  name_type=["literal", 'random_numbers', 'room_importance'], draw_passages=True, draw_player=True,
@@ -34,15 +34,9 @@ class VisualHints:
         Agent <-> Role Master <-> environment
         """
 
-        n_id = textworld.gym.register_game(path,
-                                           batch_size=batch_size,
-                                           asynchronous=asynchronous,
-                                           request_infos=request_infos,
-                                           )
-        self.env = gym.make(n_id)
-        self.env.seed(42)
-        self.env.display_command_during_render = True
-        self.infos = []
+        self.env = env
+        #self.infos = []
+        self.infos = {}
 
         self.batch_size = batch_size
         self.rooms_dict = dict()
@@ -109,7 +103,7 @@ class VisualHints:
 
         self.pic_size, self.center_visited_rooms = picture_size(self.rooms_dict, first_room, -1, visited_rooms,
                                                                 self.center_visited_rooms)
-        
+
         # draw the map
         way, self.death_room, self.rooms_leading_to_death_room, self.dict_rooms_nbr, _, self.im = draw_map(
             self.pic_size,
@@ -268,8 +262,8 @@ class VisualHints:
             return 0
 
     def step(self, step):
-
-        info_des = self.infos["description"]
+        # self.infos should has 'description' as set by reset()
+        info_des = self.infos['description'] if 'description' in self.infos else ''
 
         need_step_mod = self.vect_need_step_mod(info_des, self.take_hint, step)
         obs = np.asarray([])
@@ -754,3 +748,25 @@ class VisualHints:
             dones = True
 
             return obs, rewards, rewards_hint, rewards_board, dones, infos_description, False, False, False, False
+
+
+class VisualHints(VisualHintsWrapper):
+
+    def __init__(self, path: str, request_infos: EnvInfos, batch_size: int, asynchronous: bool,
+                 *args, **kwargs):
+        """
+        Create Role Master
+        The Role Master is an intermediate between the environment and the agent
+        He can add extra information and display some puzzles
+
+        Agent <-> Role Master <-> environment
+        """
+        n_id = textworld.gym.register_game(path,
+                                   batch_size=batch_size,
+                                   asynchronous=asynchronous,
+                                   request_infos=request_infos,
+                                   )
+        env = gym.make(n_id)
+        env.seed(42)
+        env.display_command_during_render = True
+        super(VisualHints, self).__init__(env, *args, batch_size=batch_size, **kwargs)
